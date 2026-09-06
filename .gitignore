@@ -1,3 +1,8 @@
 # build artefact for previewing the page outside this repo
 preview.html
-_check.png
+_*.png
+
+# LaTeX intermediates
+*.aux
+*.log
+*.out

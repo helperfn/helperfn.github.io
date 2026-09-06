@@ -1,168 +1,167 @@
 % Rida Zafar - resume
 %
-% Built for ATS parsing: single column, no tables or text boxes used for
-% layout, no images, no glyphs outside the standard text encoding, and
-% section headings with conventional names. Every line is real selectable
-% text in reading order, which is what a parser walks.
+% Written for applicant tracking systems first, human readers second:
+%   * one column, top to bottom, so the parser's reading order is the
+%     document's reading order
+%   * no tables, text boxes, multicol or graphics used for layout
+%   * black text on white only - no colour anywhere, including links
+%   * conventional section names in plain uppercase, so they extract as
+%     the literal strings a parser looks for
+%   * dates pushed right with \hfill rather than tabular columns
+%   * no symbol fonts; every glyph extracts as plain ASCII
+%   * fits on one page, which is what is expected at this career stage
 %
-% Compile with pdflatex (twice, so the hyperref anchors settle):
+% Phone number and email are deliberately absent: this copy is published
+% in a public repository. Keep a separate copy with contact details for
+% actual applications - most ATS key a candidate record on the email.
+%
+% Compile twice so hyperref anchors settle:
 %     pdflatex resume.tex && pdflatex resume.tex
 
-\documentclass[11pt,letterpaper]{article}
+\documentclass[10pt,letterpaper]{article}
 
 \usepackage[T1]{fontenc}
 \usepackage[utf8]{inputenc}
-\usepackage[margin=0.7in]{geometry}
+\usepackage{mathptmx}                    % Times: conventional, widely readable
+\usepackage[margin=0.5in]{geometry}
 \usepackage{enumitem}
 \usepackage{titlesec}
-\usepackage[hidelinks]{hyperref}
-
-\usepackage{charter}          % a plain, widely-metric-compatible serif
+\usepackage[hidelinks]{hyperref}         % clickable, but rendered black
 
 \pagestyle{empty}
 \setlength{\parindent}{0pt}
+\setlength{\parskip}{0pt}
 \raggedright
 \raggedbottom
 
-% Section headings: plain words, ruled underneath. No icons, no colour.
+% Headings: literal uppercase words, black rule beneath. Nothing decorative.
 \titleformat{\section}
-  {\large\bfseries\scshape}{}{0pt}{}[\vspace{2pt}\hrule\vspace{-2pt}]
-\titlespacing*{\section}{0pt}{12pt}{6pt}
+  {\normalsize\bfseries}{}{0pt}{}[\vspace{1pt}\hrule\vspace{-3pt}]
+\titlespacing*{\section}{0pt}{7pt}{5pt}
 
-\setlist[itemize]{leftmargin=1.3em, topsep=2pt, itemsep=1pt,
+\setlist[itemize]{leftmargin=1.2em, topsep=1pt, itemsep=0pt,
                   parsep=0pt, label=\textbullet}
 
-% An entry: title on the left, dates on the right, role underneath.
-% \hfill rather than a tabular, so the parser reads it as one line.
-\newcommand{\entry}[4]{%
+% One entry: bold title left, dates right, italic role on the next line.
+\newcommand{\entry}[3]{%
   \textbf{#1}\hfill #2\\
-  \textit{#3}\ifx&#4&\else\hfill #4\fi\\[2pt]
+  \textit{#3}\\[1pt]%
 }
 
 \begin{document}
 
-% ---------- header ----------
-{\LARGE\bfseries RIDA ZAFAR}\\[4pt]
-B.Sc. (Honours) Computer Science and Statistics, CHRIST (Deemed to be
-University), Bengaluru\\[2pt]
-\href{https://linkedin.com/in/rida-zafar-11253b285}{linkedin.com/in/rida-zafar-11253b285}
-~$\vert$~
-\href{https://github.com/helperfn}{github.com/helperfn}
-~$\vert$~
-Bengaluru, Karnataka, India
+% ---------------- header ----------------
+\begin{center}
+  {\LARGE\bfseries RIDA ZAFAR}\\[2pt]
+  B.Sc. (Honours) Computer Science and Statistics,
+  CHRIST (Deemed to be University), Bengaluru\\[2pt]
+  \href{https://linkedin.com/in/rida-zafar-11253b285}%
+       {linkedin.com/in/rida-zafar-11253b285}
+  \ \textbar\
+  \href{https://github.com/helperfn}{github.com/helperfn}
+  \ \textbar\
+  Bengaluru, Karnataka, India
+\end{center}
 
-% ---------- summary ----------
-\section{Summary}
+% ---------------- experience ----------------
+\section{EXPERIENCE}
 
-Computer Science and Statistics student with hands-on experience building
-production backend systems in Rust and SQL. Shipped a multi-tenant web
-application end to end --- API design, authentication, role-based access
-control and database modelling --- for a live client using Axum, SQLx and
-PostgreSQL, backed by prior work fine-tuning language models and building
-automation tooling.
-
-% ---------- experience ----------
-\section{Experience}
-
-\entry{Sabaton Systems LLP, Bengaluru}{Feb 2026 -- May 2026}
-      {Software Developer (Intern)}{}
+\entry{Sabaton Systems LLP, Bengaluru}{February 2026 -- May 2026}
+      {Software Developer (Intern)}
 \begin{itemize}
-  \item Built a multi-tenant regatta-management platform in Rust (Axum, SQLx,
-        Askama) --- 382 commits and 135 merged pull requests across a
-        31,500-line codebase --- including a Racing Rules of Sailing compliant
-        protest, hearing and appeals system covering the full RRS Part 5 and
-        70--71 lifecycle.
+  \item Built a multi-tenant regatta-management platform in Rust using Axum,
+        SQLx and Askama: 382 commits and 135 merged pull requests across a
+        31,500-line codebase, including a protest, hearing and appeals system
+        compliant with the Racing Rules of Sailing Part 5 and 70--71 lifecycle.
   \item Shipped a versioned Notice of Race and Sailing Instructions builder with
         in-process Typst PDF generation and an interactive Leaflet course
         designer, plus a transactional email system for registrations,
         invitations, OTP verification and document publication.
-  \item Hardened the application for production --- CSRF middleware, Argon2
-        hashing, HMAC-TOTP email verification, rate limiting and audit logging
-        --- and led a security audit that identified and fixed multiple IDOR
-        vulnerabilities, alongside 421 tests and 65 database migrations.
+  \item Hardened the application for production with CSRF middleware, Argon2
+        hashing, HMAC-TOTP email verification, rate limiting and audit logging,
+        and led a security audit that identified and fixed multiple insecure
+        direct object reference vulnerabilities, alongside 421 tests and 65
+        database migrations.
 \end{itemize}
 
-\vspace{6pt}
-\entry{Ernst \& Young (EY), Bengaluru}{May 2025 -- Jun 2025}
-      {Technology Consulting Intern}{}
+\vspace{4pt}
+\entry{Ernst \& Young (EY), Bengaluru}{May 2025 -- June 2025}
+      {Technology Consulting Intern}
 \begin{itemize}
   \item Built an internal tool that converts Business Requirement Documents into
         structured epics and user stories, reducing manual
         requirements-documentation effort for consulting teams.
   \item Fine-tuned open-source language models and integrated OpenAI APIs for
-        document generation; evaluated output quality against
-        consultant-written baselines and iterated on prompts and training data.
+        document generation, evaluating output quality against
+        consultant-written baselines and iterating on prompts and training data.
 \end{itemize}
 
-% ---------- projects ----------
-\section{Projects}
+% ---------------- projects ----------------
+\section{PROJECTS}
 
 \entry{Service Monitoring Toolkit for Regatta Manager}{2026, in progress}
-      {Python, Task Scheduler, SQLite}{}
+      {Python, SQLite, Windows Task Scheduler}
 \begin{itemize}
-  \item Polymorphic Probe class for HTTP and TCP checks; append-only CSV behind
-        an atomic lock, with a per-run heartbeat that distinguishes a stalled
-        scheduler from a healthy service.
-  \item Standard-library-only restartable ingestion into SQLite (byte-offset
-        reads, deduplicated inserts), reporting availability, p50 and p95
-        latency and 5xx rates against a non-overlapping 7-day baseline.
-  \item Alert state held in SQLite --- one alert on open, one on recovery,
-        hourly reminders at most --- cutting 288 messages per day to a handful,
+  \item Polymorphic Probe class for HTTP and TCP checks, writing to an
+        append-only CSV behind an atomic lock, with a per-run heartbeat that
+        distinguishes a stalled scheduler from a healthy service.
+  \item Restartable ingestion into SQLite using only the standard library, with
+        byte-offset reads and deduplicated inserts, reporting availability, p50
+        and p95 latency and 5xx rates against a non-overlapping seven-day
+        baseline.
+  \item Alert state held in SQLite, with one alert on open, one on recovery and
+        hourly reminders at most, cutting 288 messages per day to a handful,
         plus a daily Markdown report.
 \end{itemize}
 
-% ---------- skills ----------
-\section{Skills}
+% ---------------- skills ----------------
+\section{SKILLS}
 
-\textbf{Programming languages:} Python, Rust, C, C++, SQL, R, Bash\\
+\textbf{Programming Languages:} Python, Rust, C, C++, SQL, R, Bash\\
 \textbf{Databases:} PostgreSQL, MySQL, SQLite\\
-\textbf{Frameworks and libraries:} Axum, SQLx, Askama, Leaflet, Typst\\
-\textbf{Tools and platforms:} Git, Linux, REST APIs, Excel\\
-\textbf{Spoken languages:} English (fluent), Hindi (fluent), Kannada (beginner)
+\textbf{Frameworks and Libraries:} Axum, SQLx, Askama, Leaflet, Typst\\
+\textbf{Tools and Platforms:} Git, Linux, REST APIs, Microsoft Excel\\
+\textbf{Spoken Languages:} English (fluent), Hindi (fluent), Kannada (beginner)
 
-% ---------- education ----------
-\section{Education}
+% ---------------- education ----------------
+\section{EDUCATION}
 
 \entry{CHRIST (Deemed to be University), Bengaluru}{Expected 2027}
-      {B.Sc. (Honours) Computer Science and Statistics, GPA 3.65/4.0
-       (9.13/10)}{}
+      {B.Sc. (Honours) Computer Science and Statistics, GPA 3.65/4.0 (9.13/10)}
 
-\entry{Indian Institute of Technology Madras (Online)}{Apr 2025}
-      {B.S. Data Science and Applications, Foundational Level}{}
+\entry{Indian Institute of Technology Madras (Online)}{April 2025}
+      {B.S. Data Science and Applications, Foundational Level}
 
 \entry{AECS Magnolia Maaruti Public School, Bengaluru}{2024}
-      {Grade 12, 94.8\%}{}
+      {Grade 12, 94.8 percent}
 
-% ---------- certifications ----------
-\section{Certifications}
+% ---------------- certifications ----------------
+\section{CERTIFICATIONS}
 
 \begin{itemize}
-  \item HR Analytics, NPTEL (2024)
-  \item Language and Mind, NPTEL (2024)
-  \item Basics of Python, Infosys Springboard (2023)
-  \item Python Foundation Certification, Infosys Springboard (2023)
+  \item HR Analytics, NPTEL, 2024
+  \item Language and Mind, NPTEL, 2024
+  \item Basics of Python, and Python Foundation Certification, Infosys
+        Springboard, 2023
 \end{itemize}
 
-% ---------- leadership ----------
-\section{Leadership and Co-curricular}
+% ---------------- leadership ----------------
+\section{LEADERSHIP AND CO-CURRICULAR}
 
 \begin{itemize}
-  \item Vertical Head, BitOps --- Labyrinth, the Computer Science club at
-        CHRIST University (2025). Led the vertical's events and operations.
-  \item Media Volunteer, CUIE (2025). Produced video content published on the
+  \item Vertical Head, BitOps, Labyrinth, the Computer Science club at CHRIST
+        University, 2025. Led the vertical's events and operations.
+  \item Media Volunteer, CUIE, 2025. Produced video content published on the
         cell's official channels.
-  \item Accepted abstract, ``Rejuvenating Lakes in Bengaluru'' --- IEREK CST
-        6th Edition Conference (2024).
+  \item Accepted abstract, ``Rejuvenating Lakes in Bengaluru'', IEREK CST 6th
+        Edition Conference, 2024.
 \end{itemize}
 
-% ---------- awards ----------
-\section{Awards}
+% ---------------- awards ----------------
+\section{AWARDS}
 
 \begin{itemize}
-  \item Meritorious Scholarship, Scholarship and Fellowship Support Cell,
-        CHRIST University (2025)
-  \item Meritorious Scholarship, Scholarship and Fellowship Support Cell,
-        CHRIST University (2024)
+  \item Meritorious Scholarship, CHRIST University, 2025 and 2024
 \end{itemize}
 
 \end{document}
