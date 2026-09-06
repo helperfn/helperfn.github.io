@@ -11,9 +11,10 @@
 %   * no symbol fonts; every glyph extracts as plain ASCII
 %   * fits on one page, which is what is expected at this career stage
 %
-% Phone number and email are deliberately absent: this copy is published
-% in a public repository. Keep a separate copy with contact details for
-% actual applications - most ATS key a candidate record on the email.
+% Email is present because most ATS key a candidate record on it, and a
+% resume without one can parse as an incomplete record. The phone number
+% is deliberately absent: this copy is published in a public repository,
+% so anything on it is crawlable.
 %
 % Compile twice so hyperref anchors settle:
 %     pdflatex resume.tex && pdflatex resume.tex
@@ -55,6 +56,8 @@
   {\LARGE\bfseries RIDA ZAFAR}\\[2pt]
   B.Sc. (Honours) Computer Science and Statistics,
   CHRIST (Deemed to be University), Bengaluru\\[2pt]
+  \href{mailto:ridazafar50@gmail.com}{ridazafar50@gmail.com}
+  \ \textbar\
   \href{https://linkedin.com/in/rida-zafar-11253b285}%
        {linkedin.com/in/rida-zafar-11253b285}
   \ \textbar\
