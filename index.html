@@ -1,0 +1,631 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Rida Zafar - Backend &amp; Systems</title>
+<meta name="description" content="Rida Zafar - Computer Science and Statistics student building production backend systems in Rust and SQL. Bengaluru, India.">
+</head>
+<body>
+<style>
+/* ---- tokens ------------------------------------------------ */
+:root{
+  --paper:      #e4e1d6;
+  --raised:     #edebe2;
+  --ink:        #222620;
+  --muted:      #5e6357;
+  --faint:      #7d8275;
+  --rule:       #c4c0b2;
+  --rule-soft:  #d6d2c5;
+  --accent:     #4c6a4f;
+  --gold:       #8a6a22;
+  --shadow:     #22262014;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --paper:      #282c24;
+    --raised:     #31362d;
+    --ink:        #ccc9bc;
+    --muted:      #a9ae9f;
+    --faint:      #949986;
+    --rule:       #454b40;
+    --rule-soft:  #383d34;
+    --accent:     #8faa8a;
+    --gold:       #bb9d63;
+    --shadow:     #00000033;
+  }
+}
+:root[data-theme="dark"]{
+  --paper:      #282c24;
+  --raised:     #31362d;
+  --ink:        #ccc9bc;
+  --muted:      #a9ae9f;
+  --faint:      #949986;
+  --rule:       #454b40;
+  --rule-soft:  #383d34;
+  --accent:     #8faa8a;
+  --gold:       #bb9d63;
+  --shadow:     #00000033;
+}
+
+/* ---- base -------------------------------------------------- */
+*,*::before,*::after{ box-sizing:border-box; }
+
+body{
+  margin:0;
+  background:var(--paper);
+  color:var(--ink);
+  font-family:Consolas,"Cascadia Mono","Cascadia Code","SF Mono",Menlo,
+              "DejaVu Sans Mono","Liberation Mono","Courier New",monospace;
+  font-size:15px;
+  line-height:1.7;
+  -webkit-font-smoothing:antialiased;
+}
+
+::selection{ background:var(--accent); color:var(--paper); }
+
+a{ color:inherit; text-decoration:none; }
+
+:focus-visible{ outline:2px solid var(--accent); outline-offset:3px; }
+
+/* Monospace needs a shorter measure than proportional type: every glyph is
+   the same width, so there are no word-shapes for the eye to track by.
+   The frame is 40rem; running text is capped tighter still, per element. */
+.wrap{ width:min(100% - 2.5rem, 46rem); margin-inline:auto; }
+
+/* ---- title bar --------------------------------------------- */
+.bar{
+  position:sticky; top:0; z-index:10;
+  background:var(--paper);
+  border-bottom:1px solid var(--rule);
+}
+.bar-in{
+  display:grid; grid-template-columns:1fr auto auto;
+  align-items:center; gap:0 1.5rem; min-height:2.75rem;
+}
+.bar-name{
+  font-size:.75rem; font-weight:700;
+  letter-spacing:.16em; text-transform:uppercase;
+  white-space:nowrap;
+}
+.bar-nav{
+  display:flex; gap:1.15rem;
+  font-size:.75rem; letter-spacing:.1em;
+  text-transform:uppercase; color:var(--muted);
+}
+.bar-nav a{
+  border-bottom:1px solid transparent;
+  padding-bottom:2px; white-space:nowrap;
+}
+.bar-nav a:hover{ color:var(--ink); border-bottom-color:var(--rule); }
+.bar-nav a[aria-current="page"]{ color:var(--ink); border-bottom-color:var(--accent); }
+
+.theme-btn{
+  font:inherit; font-size:.6875rem; letter-spacing:.1em;
+  text-transform:uppercase; white-space:nowrap;
+  background:none; border:1px solid var(--rule); color:var(--muted);
+  padding:.2rem .6rem; cursor:pointer;
+}
+.theme-btn:hover{ color:var(--ink); border-color:var(--accent); }
+
+@media (max-width:37rem){
+  .bar-in{
+    grid-template-columns:1fr auto;
+    gap:.35rem 1rem; padding:.6rem 0;
+  }
+  .bar-name{ grid-column:1; grid-row:1; }
+  .theme-btn{ grid-column:2; grid-row:1; }
+  .bar-nav{
+    grid-column:1 / -1; grid-row:2;
+    gap:1rem; font-size:.6875rem; letter-spacing:.06em;
+    overflow-x:auto; scrollbar-width:none;
+  }
+  .bar-nav::-webkit-scrollbar{ display:none; }
+}
+
+/* ---- pages ------------------------------------------------- */
+/* Without JS every page is visible and the site reads as one long
+   document. JS adds .routed to <body> to switch to one-page-at-a-time. */
+.page{ padding:2.75rem 0 0; }
+body.routed .page{ display:none; padding-top:3.25rem; }
+body.routed .page.is-active{ display:block; }
+
+/* ---- prompt line ------------------------------------------- */
+.cmdline{
+  position:relative;
+  font-size:.875rem; color:var(--muted);
+  display:flex; align-items:baseline; flex-wrap:wrap;
+  gap:.55ch;
+}
+.path{ color:var(--accent); }
+.typed{ color:var(--ink); }
+.caret{
+  display:inline-block; width:.6em; height:1.05em;
+  background:var(--accent); translate:0 .15em;
+  animation:blink 1.15s steps(1,end) infinite;
+}
+@keyframes blink{ 0%,50%{opacity:1} 50.01%,100%{opacity:0} }
+
+/* page-level prompt doubles as the page heading */
+.page-head{ margin-bottom:2rem; }
+.page-head .cmdline{ margin-bottom:.9rem; }
+.page-head h2{
+  margin:0; font-size:.75rem; font-weight:700;
+  letter-spacing:.2em; text-transform:uppercase;
+  color:var(--accent);
+  padding-bottom:.85rem;
+  border-bottom:1px solid var(--rule);
+}
+
+/* ---- home -------------------------------------------------- */
+.console{
+  position:relative;
+  background:var(--raised);
+  border:1px solid var(--rule);
+  box-shadow:0 1px 0 var(--shadow);
+  padding:1.5rem 1.6rem 1.75rem;
+  overflow:hidden;
+}
+.console::before{
+  content:""; position:absolute; inset:0; pointer-events:none;
+  background:repeating-linear-gradient(
+    to bottom, var(--ink) 0 1px, transparent 1px 4px);
+  opacity:.028;
+}
+.console .cmdline{ margin-bottom:1.4rem; }
+
+.out{ position:relative; }
+.out[hidden]{ display:none; }
+
+h1{
+  margin:0;
+  font-size:clamp(1.8rem,7.5vw,3.1rem);
+  font-weight:700; line-height:1.08;
+  letter-spacing:.11em; text-transform:uppercase;
+  text-wrap:balance;
+}
+.subtitle{
+  margin:.9rem 0 0;
+  font-size:.9375rem; color:var(--muted);
+  max-width:60ch;
+}
+.subtitle strong{ color:var(--ink); font-weight:700; }
+
+.links{
+  display:flex; flex-wrap:wrap; gap:.4rem 1.4rem;
+  margin-top:1.5rem;
+  font-size:.8125rem;
+}
+.links a{
+  color:var(--muted);
+  border-bottom:1px solid var(--rule);
+  padding-bottom:2px;
+}
+.links a:hover{ color:var(--ink); border-bottom-color:var(--accent); }
+.links a::before{ content:"[ "; color:var(--accent); }
+.links a::after{ content:" ]"; color:var(--accent); }
+
+.readout{
+  margin:2.25rem 0 0;
+  display:grid; grid-template-columns:max-content 1fr;
+  gap:.35rem 2ch;
+  font-size:.8125rem;
+  border-top:1px solid var(--rule-soft);
+  padding-top:1.5rem;
+}
+.readout dt{
+  color:var(--accent); font-weight:700;
+  letter-spacing:.14em; text-transform:uppercase;
+}
+.readout dd{ margin:0; color:var(--muted); }
+@media (max-width:33rem){
+  .readout{ grid-template-columns:1fr; gap:.1rem; }
+  .readout dd{ margin-bottom:.7rem; }
+}
+
+/* ---- entries ----------------------------------------------- */
+.stack{ display:flex; flex-direction:column; gap:2.5rem; }
+
+.entry-top{
+  display:grid; grid-template-columns:1fr max-content;
+  align-items:baseline; gap:.25rem 2ch;
+}
+.entry-top h3{ margin:0; font-size:1rem; font-weight:700; }
+.role{ margin:.15rem 0 0; font-size:.875rem; color:var(--gold); }
+.when{
+  font-size:.75rem; color:var(--faint);
+  letter-spacing:.06em; white-space:nowrap;
+  font-variant-numeric:tabular-nums;
+}
+@media (max-width:33rem){
+  .entry-top{ grid-template-columns:1fr; }
+  .entry-top .when{ order:-1; margin-bottom:.2rem; }
+}
+
+/* One line per entry. The resume carries the detail. */
+.summary{
+  margin:.7rem 0 0; max-width:72ch;
+  color:var(--muted); font-size:.875rem;
+}
+
+.more{ margin:2.5rem 0 0; font-size:.8125rem; }
+.more a{
+  color:var(--accent);
+  border-bottom:1px solid var(--rule);
+  padding-bottom:2px;
+}
+.more a:hover{ border-bottom-color:var(--accent); }
+
+.tech{
+  margin:.75rem 0 0; font-size:.75rem;
+  letter-spacing:.08em; color:var(--faint);
+  text-transform:uppercase;
+}
+
+/* ---- skills ------------------------------------------------ */
+.skills{
+  margin:0;
+  display:grid; grid-template-columns:max-content 1fr;
+  gap:.9rem 2ch; font-size:.875rem;
+}
+.skills dt{
+  color:var(--accent); font-weight:700;
+  font-size:.75rem; letter-spacing:.14em; text-transform:uppercase;
+  padding-top:.15rem;
+}
+.skills dd{ margin:0; color:var(--muted); }
+@media (max-width:33rem){
+  .skills{ grid-template-columns:1fr; gap:.15rem; }
+  .skills dd{ margin-bottom:.9rem; }
+}
+
+/* ---- sub-sections within a page ---------------------------- */
+.sub-head{
+  display:flex; align-items:center; gap:1.25ch;
+  margin:3rem 0 1.5rem;
+}
+.sub-head h3{
+  margin:0; font-size:.75rem; font-weight:700;
+  letter-spacing:.18em; text-transform:uppercase;
+  color:var(--accent); white-space:nowrap;
+}
+.sub-head .fill{ flex:1; height:0; border-top:1px solid var(--rule-soft); }
+
+/* Three parallel lists. auto-fit drops to two columns, then one, as the
+   frame narrows - no breakpoint needed. */
+.cols{
+  display:grid;
+  grid-template-columns:repeat(auto-fit, minmax(12rem, 1fr));
+  gap:0 2rem;
+}
+.cols .sub-head{ margin:0 0 1.25rem; }
+.cols > div + div .sub-head{ margin-top:0; }
+@media (max-width:46rem){
+  .cols{ gap:1.5rem 2rem; }
+}
+
+.mini{
+  margin:0; padding:0; list-style:none;
+  display:flex; flex-direction:column; gap:.6rem;
+  font-size:.875rem; color:var(--muted);
+}
+.mini li{ position:relative; padding-left:2.5ch; }
+.mini li::before{
+  content:"-"; position:absolute; left:0;
+  color:var(--accent); font-weight:700;
+}
+.mini .yr{ color:var(--faint); font-variant-numeric:tabular-nums; }
+
+/* ---- footer ------------------------------------------------ */
+footer{ margin-top:4.5rem; border-top:1px solid var(--rule); }
+.foot{
+  padding:1.75rem 0 3rem;
+  display:flex; flex-wrap:wrap; justify-content:space-between;
+  gap:.6rem 2rem;
+  font-size:.75rem; letter-spacing:.05em; color:var(--faint);
+}
+.foot a{ border-bottom:1px solid var(--rule-soft); word-break:break-all; }
+.foot a:hover{ color:var(--ink); border-bottom-color:var(--accent); }
+.foot .prompt-end{ color:var(--accent); white-space:nowrap; }
+
+@media (prefers-reduced-motion:reduce){
+  .caret{ animation:none; }
+  *{ transition:none !important; }
+}
+</style>
+
+<header class="bar">
+  <div class="wrap bar-in">
+    <span class="bar-name">Rida Zafar</span>
+    <nav class="bar-nav" id="nav" aria-label="Pages">
+      <a href="#home">Home</a>
+      <a href="#work">Work</a>
+      <a href="#projects">Projects</a>
+      <a href="#skills">Skills</a>
+      <a href="#education">Education</a>
+    </nav>
+    <button class="theme-btn" id="theme" type="button">theme: dark</button>
+  </div>
+</header>
+
+<main class="wrap" id="main">
+
+  <!-- ============ HOME ============ -->
+  <section class="page" id="home" aria-labelledby="home-name">
+    <div class="console">
+      <div class="cmdline">
+        <span class="path">C:\users\rida&gt;</span>
+        <span class="typed" id="typed">whoami</span><span class="caret" aria-hidden="true"></span>
+      </div>
+
+      <div class="out" id="out">
+        <h1 id="home-name">Rida&nbsp;Zafar</h1>
+        <p class="subtitle">
+          Computer Science and Statistics student who builds <strong>production backend
+          systems</strong> - API design, authentication, access control and database
+          modelling, mostly in <strong>Rust</strong> and <strong>SQL</strong>.
+        </p>
+
+        <div class="links">
+          <a href="resume.pdf">resume</a>
+          <a href="mailto:ridazafar50@gmail.com">email</a>
+          <a href="https://github.com/helperfn" rel="me noopener">github</a>
+          <a href="https://linkedin.com/in/rida-zafar-11253b285" rel="me noopener">linkedin</a>
+        </div>
+      </div>
+    </div>
+
+    <dl class="readout">
+      <dt>Location</dt>
+      <dd>Bengaluru, Karnataka, India</dd>
+      <dt>Reading</dt>
+      <dd>B.Sc. (Honours) Computer Science and Statistics, CHRIST University - expected 2027</dd>
+      <dt>Focus</dt>
+      <dd>Redoing fundamentals :)</dd>
+    </dl>
+  </section>
+
+  <!-- ============ WORK ============ -->
+  <section class="page" id="work" aria-labelledby="work-title">
+    <div class="page-head">
+      <div class="cmdline">
+        <span class="path">C:\users\rida&gt;</span>
+        <span class="typed">type work.txt</span>
+      </div>
+      <h2 id="work-title">Experience</h2>
+    </div>
+
+    <div class="stack">
+      <article>
+        <div class="entry-top">
+          <div>
+            <h3>Sabaton Systems LLP</h3>
+            <p class="role">Software Developer (Intern) / Bengaluru</p>
+          </div>
+          <span class="when">Feb 2026 - May 2026</span>
+        </div>
+        <p class="summary">Multi-tenant regatta platform in Rust. 31.5k lines, 421 tests.</p>
+        <p class="tech">Rust / Axum / SQLx / Askama / PostgreSQL / Typst</p>
+      </article>
+
+      <article>
+        <div class="entry-top">
+          <div>
+            <h3>Ernst &amp; Young (EY)</h3>
+            <p class="role">Technology Consulting Intern / Bengaluru</p>
+          </div>
+          <span class="when">May 2025 - Jun 2025</span>
+        </div>
+        <p class="summary">Tool that turns requirement documents into epics and
+          user stories.</p>
+        <p class="tech">Python / LLM fine-tuning / OpenAI API</p>
+      </article>
+    </div>
+
+    <p class="more"><a href="resume.pdf">Full detail in the resume</a></p>
+  </section>
+
+  <!-- ============ PROJECTS ============ -->
+  <section class="page" id="projects" aria-labelledby="projects-title">
+    <div class="page-head">
+      <div class="cmdline">
+        <span class="path">C:\users\rida&gt;</span>
+        <span class="typed">type projects.txt</span>
+      </div>
+      <h2 id="projects-title">Projects</h2>
+    </div>
+
+    <div class="stack">
+      <article>
+        <div class="entry-top">
+          <div>
+            <h3>Service Monitoring Toolkit</h3>
+            <p class="role">Uptime and latency monitoring for Regatta Manager</p>
+          </div>
+          <span class="when">2026 - in progress</span>
+        </div>
+        <p class="summary">HTTP/TCP uptime probes into SQLite, with alerting and a daily report.</p>
+        <p class="tech">Python / SQLite / Task Scheduler</p>
+      </article>
+    </div>
+
+    <p class="more"><a href="resume.pdf">Full detail in the resume</a></p>
+  </section>
+
+  <!-- ============ SKILLS ============ -->
+  <section class="page" id="skills" aria-labelledby="skills-title">
+    <div class="page-head">
+      <div class="cmdline">
+        <span class="path">C:\users\rida&gt;</span>
+        <span class="typed">type skills.txt</span>
+      </div>
+      <h2 id="skills-title">Skills</h2>
+    </div>
+
+    <dl class="skills">
+      <dt>Languages</dt>
+      <dd>Python, Rust, C, C++, SQL, R, Bash</dd>
+      <dt>Databases</dt>
+      <dd>PostgreSQL, MySQL, SQLite</dd>
+      <dt>Frameworks</dt>
+      <dd>Axum, SQLx, Askama, Leaflet, Typst</dd>
+      <dt>Tools</dt>
+      <dd>Git, Linux, REST APIs, Excel</dd>
+      <dt>Spoken</dt>
+      <dd>English (fluent), Hindi (fluent), Kannada (beginner)</dd>
+    </dl>
+  </section>
+
+  <!-- ============ EDUCATION ============ -->
+  <section class="page" id="education" aria-labelledby="education-title">
+    <div class="page-head">
+      <div class="cmdline">
+        <span class="path">C:\users\rida&gt;</span>
+        <span class="typed">type education.txt</span>
+      </div>
+      <h2 id="education-title">Education</h2>
+    </div>
+
+    <div class="cols">
+      <div>
+        <div class="sub-head"><h3>Education</h3><span class="fill"></span></div>
+        <ul class="mini">
+          <li>B.Sc. (Hons) Computer Science and Statistics, CHRIST University -
+            GPA 3.65/4 <span class="yr">(2027)</span></li>
+          <li>B.S. Data Science and Applications, IIT Madras
+            <span class="yr">(2025)</span></li>
+          <li>Grade 12, AECS Magnolia Maaruti - 94.8%
+            <span class="yr">(2024)</span></li>
+        </ul>
+      </div>
+      <div>
+        <div class="sub-head"><h3>Awards</h3><span class="fill"></span></div>
+        <ul class="mini">
+          <li>Meritorious Scholarship, CHRIST University <span class="yr">(2025)</span></li>
+          <li>Meritorious Scholarship, CHRIST University <span class="yr">(2024)</span></li>
+        </ul>
+      </div>
+      <div>
+        <div class="sub-head"><h3>Leadership</h3><span class="fill"></span></div>
+        <ul class="mini">
+          <li>Vertical Head, BitOps - Labyrinth, CS club at CHRIST
+            <span class="yr">(2025)</span></li>
+          <li>Media Volunteer, CUIE - video for official channels
+            <span class="yr">(2025)</span></li>
+          <li>Abstract accepted, "Rejuvenating Lakes in Bengaluru" - IEREK CST
+            <span class="yr">(2024)</span></li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  <div class="wrap foot">
+    <span>Rida Zafar / Bengaluru, India</span>
+    <span><a href="mailto:ridazafar50@gmail.com">ridazafar50@gmail.com</a></span>
+    <span class="prompt-end">C:\users\rida&gt; exit</span>
+  </div>
+</footer>
+
+<script>
+/* Theme. Three states: no stamp on <html> means follow the OS; an explicit
+   choice stamps data-theme and is remembered. */
+(function () {
+  var root = document.documentElement;
+  var btn = document.getElementById('theme');
+
+  function read()  { try { return localStorage.getItem('rz-theme'); } catch (e) { return null; } }
+  function write(v){ try { localStorage.setItem('rz-theme', v); } catch (e) {} }
+
+  function resolved() {
+    return root.getAttribute('data-theme')
+        || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+  }
+
+  function paint() {
+    var now = resolved();
+    btn.textContent = 'theme: ' + now;
+    btn.setAttribute('aria-label',
+      'Switch to ' + (now === 'dark' ? 'light' : 'dark') + ' theme');
+  }
+
+  var saved = read();
+  if (saved === 'dark' || saved === 'light') { root.setAttribute('data-theme', saved); }
+  paint();
+
+  btn.addEventListener('click', function () {
+    var next = resolved() === 'dark' ? 'light' : 'dark';
+    root.setAttribute('data-theme', next);
+    write(next);
+    paint();
+  });
+
+  /* Keep the label honest while no explicit choice is stored. */
+  window.matchMedia('(prefers-color-scheme: dark)')
+    .addEventListener('change', function () {
+      if (!root.getAttribute('data-theme')) { paint(); }
+    });
+})();
+
+(function () {
+  var PAGES = ['home', 'work', 'projects', 'skills', 'education'];
+  var nav = document.getElementById('nav');
+  var links = nav.querySelectorAll('a');
+
+  document.body.classList.add('routed');
+
+  function show(id, scroll) {
+    if (PAGES.indexOf(id) === -1) { id = 'home'; }
+
+    PAGES.forEach(function (p) {
+      document.getElementById(p).classList.toggle('is-active', p === id);
+    });
+
+    links.forEach(function (a) {
+      if (a.getAttribute('href') === '#' + id) {
+        a.setAttribute('aria-current', 'page');
+      } else {
+        a.removeAttribute('aria-current');
+      }
+    });
+
+    document.title = id === 'home'
+      ? 'Rida Zafar - Backend & Systems'
+      : 'Rida Zafar - ' + id.charAt(0).toUpperCase() + id.slice(1);
+
+    if (scroll) { window.scrollTo(0, 0); }
+  }
+
+  function current() {
+    return (location.hash || '#home').slice(1).toLowerCase();
+  }
+
+  show(current(), false);
+  window.addEventListener('hashchange', function () { show(current(), true); });
+
+  /* Home page opens by typing its own command. Runs once, on first load. */
+  if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches
+      && current() === 'home') {
+    var typed = document.getElementById('typed');
+    var out = document.getElementById('out');
+    var text = typed.textContent;
+    var i = 0;
+
+    typed.textContent = '';
+    out.hidden = true;
+
+    (function step() {
+      if (i < text.length) {
+        typed.textContent = text.slice(0, ++i);
+        setTimeout(step, 75);
+      } else {
+        setTimeout(function () { out.hidden = false; }, 320);
+      }
+    })();
+  }
+})();
+</script>
+</body>
+</html>
